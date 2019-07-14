@@ -1,6 +1,7 @@
 package testingui.diplomadoumss.org.managepage.login;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import testingui.diplomadoumss.org.managepage.BasePage;
@@ -11,10 +12,24 @@ import testingui.diplomadoumss.org.managepage.BasePage;
  */
 public class Login extends BasePage {
 
-    @FindBy(xpath = "//input[@name='email' and @type='email']")
+    @FindBy(css = "input[name='email']")
     private WebElement emailTextField;
+    @FindBy(css = "input[name='password']")
+    private WebElement passwordTextField;
 
-    public void setEmail(String email){
+    @FindBy(css = "button.btn-primary")
+    private WebElement buttonLogin;
+
+    public void seCredential (String email, String password)
+    {
+        emailTextField.clear();
         emailTextField.sendKeys(email);
+        emailTextField.sendKeys(Keys.TAB);
+        passwordTextField.clear();
+        passwordTextField.sendKeys(password);
+        passwordTextField.sendKeys(Keys.TAB);
+        buttonLogin.click();
+
     }
+
 }

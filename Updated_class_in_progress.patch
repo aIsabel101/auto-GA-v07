@@ -1,0 +1,166 @@
+Index: build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- build.gradle	(date 1562825367000)
++++ build.gradle	(date 1562888782000)
+@@ -18,3 +18,7 @@
+     compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.141.59'
+ 
+ }
++
++task tarea1(){
++    println 'hola mundo groovy'
++}
+\ No newline at end of file
+Index: gradle.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>windows-1252
+===================================================================
+--- gradle.properties	(date 1562888782000)
++++ gradle.properties	(date 1562888782000)
+@@ -0,0 +1,2 @@
++url = http://www.google.com.bo
++browser = CHROME
+\ No newline at end of file
+Index: src/main/java/testingui/diplomadoumss/org/core/BroserType.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/testingui/diplomadoumss/org/core/BroserType.java	(date 1562888782000)
++++ src/main/java/testingui/diplomadoumss/org/core/BroserType.java	(date 1562888782000)
+@@ -0,0 +1,10 @@
++package testingui.diplomadoumss.org.core;
++
++/**
++ * @author Marcelo Garay
++ * @project testingui.diplomadoumss.org
++ */
++public enum BroserType {
++    CHROME,
++    FIREFOX
++}
+Index: src/main/java/testingui/diplomadoumss/org/core/DriverFactory.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/testingui/diplomadoumss/org/core/DriverFactory.java	(date 1562825367000)
++++ src/main/java/testingui/diplomadoumss/org/core/DriverFactory.java	(date 1562888782000)
+@@ -1,5 +1,8 @@
+ package testingui.diplomadoumss.org.core;
+ 
++import java.util.HashMap;
++import java.util.Map;
++
+ /**
+  * Implement the Factory Pattern Design about the selection of WebDriver
+  * @author Marcelo Garay
+@@ -14,7 +17,15 @@
+     private DriverFactory() {
+     }
+ 
+-    public Browser getBrowser(String name){
++    public Browser getBrowser(BroserType broserType){
++        Map<BroserType, Browser> browserSettings = new HashMap<>();
++        browserSettings.put(BroserType.CHROME, new Chrome());
++        browserSettings.put(BroserType.FIREFOX, new Firefox());
++
++        return browserSettings.get(broserType);
++    }
++
++    public Browser getBrowser2(String name){
+         if(name.equalsIgnoreCase("CHROME")){
+             return new Chrome();
+         }
+Index: src/main/java/testingui/diplomadoumss/org/core/FirstExample.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/testingui/diplomadoumss/org/core/FirstExample.java	(date 1562825367000)
++++ src/main/java/testingui/diplomadoumss/org/core/FirstExample.java	(date 1562888782000)
+@@ -1,9 +1,27 @@
+ package testingui.diplomadoumss.org.core;
+ 
++import testingui.diplomadoumss.org.utilsfiles.PropertyAccesor;
++
++import java.util.HashMap;
++import java.util.Map;
++
+ public class FirstExample {
+     public static void main(String[] args) {
+-        Browser browser = DriverFactory.getInstance().getBrowser("chrome");
+-        browser.getWebDriver().get("http://www.google.com");
++
++        BroserType browserType = BroserType.valueOf(PropertyAccesor.getInstance().getBrowser());
++        Browser browser = DriverFactory.getInstance().getBrowser(browserType);
++        browser.getWebDriver().get(PropertyAccesor.getInstance().getURL());
+         browser.getWebDriver().quit();
++
++//        exampleMap();
++    }
++
++    public static void exampleMap(){
++        Map<String, String> students = new HashMap<>();
++        students.put("101", "nombre 1");
++        students.put("102", "nombre 2");
++        students.put("103", "nombre 3");
++
++        System.out.println(students.get("102"));
+     }
+ }
+Index: src/main/java/testingui/diplomadoumss/org/utilsfiles/PropertyAccesor.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/testingui/diplomadoumss/org/utilsfiles/PropertyAccesor.java	(date 1562888782000)
++++ src/main/java/testingui/diplomadoumss/org/utilsfiles/PropertyAccesor.java	(date 1562888782000)
+@@ -0,0 +1,43 @@
++package testingui.diplomadoumss.org.utilsfiles;
++
++import java.io.FileInputStream;
++import java.io.FileNotFoundException;
++import java.io.IOException;
++import java.io.InputStream;
++import java.util.Properties;
++
++/**
++ * @author Marcelo Garay
++ * @project testingui.diplomadoumss.org
++ */
++public class PropertyAccesor {
++    private static PropertyAccesor ourInstance = new PropertyAccesor();
++    private Properties prop;
++
++    public static PropertyAccesor getInstance() {
++        return ourInstance;
++    }
++
++    private PropertyAccesor() {
++        try (InputStream input = new FileInputStream("gradle.properties")) {
++            prop = new Properties();
++            prop.load(input);
++        } catch (FileNotFoundException e) {
++            e.printStackTrace();
++        } catch (IOException e) {
++            e.printStackTrace();
++        }
++    }
++
++    public String getURL(){
++        return prop.getProperty("url");
++    }
++
++    public String getBrowser(){
++        return prop.getProperty("browser");
++    }
++
++    public static void main(String[] args) {
++        System.out.println(PropertyAccesor.getInstance().getURL());
++    }
++}
